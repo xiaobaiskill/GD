@@ -1,17 +1,17 @@
 <?php
 
-/*
+
 
 //图片缩略图
 
-$image_file   = 'image/4.png';
+$image_file   = 'image/3.jpeg';
 $path = dirname(__FILE__).'/'.$image_file;
 
-$width  = 200;
+$width  = 70;
 $height = 200;
 
-$width1  = 50;
-$height1 = 50;
+// $width1  = 50;
+// $height1 = 50;
 
 $image_info = getimagesize($path);
 $image_ext  = image_type_to_extension($image_info[2]);
@@ -20,19 +20,19 @@ $image_fun = str_replace('/', 'createfrom', $image_info['mime']);
 $out_fun   = str_replace('/', '', $image_info['mime']);
 
 $image     = imagecreatetruecolor($width, $height);
-$image1    = imagecreatetruecolor($width1, $height1);
+//$image1    = imagecreatetruecolor($width1, $height1);
 $src_image = $image_fun($path);
 
 imagecopyresampled($image, $src_image, 0, 0, 0, 0, $width, $height, $image_info[0], $image_info[1]);
-imagecopyresampled($image1, $src_image, 0, 0, 0, 0, $width1, $height1, $image_info[0], $image_info[1]);
+//imagecopyresampled($image1, $src_image, 0, 0, 0, 0, $width1, $height1, $image_info[0], $image_info[1]);
 
 $out_fun($image, 'image/copy_' . $width . $image_ext);
-$out_fun($image1, 'image/copy_' . $width1 . $image_ext);
+//$out_fun($image1, 'image/copy_' . $width1 . $image_ext);
 
 imagedestroy($image);
 imagedestroy($src_image);
 
- */
+ 
 
 /*
 //文字水印
@@ -58,6 +58,7 @@ $out_fun($image,'image/water_image'.$image_ext);
 imagedestroy($image);
  */
 
+/*
 //图片水印
 
 $image_vice = 'image/1.jpeg';
@@ -78,4 +79,4 @@ imagegif($image);
 
 imagedestroy($image);
 
-imagedestroy($image_logo);
+imagedestroy($image_logo);*/

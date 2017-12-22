@@ -4,6 +4,7 @@
 class Gd
 {
 	private $img; //图像资源对象
+	private $str = '0123456789abcdefghiljkmnpqrstuvwxyz01234567890123456789';
 
 	private $info; //图像信息资源
 
@@ -72,33 +73,144 @@ class Gd
 
 	}
 
-	//添加文字
-	public function text()
+	//添加文字水印
+	public function text($text, $font, $size, $color = '#00000000', 
+        $locate = 'LT', $offset = 0, $angle = 0)
 	{
 
+		imagettftext(image, size, angle, x, y, color, fontfile, text)
 	}
-	//生成缩略图
-	public function thumb($dst_w,$dst_h)
+
+	/**
+	 * 生成缩略图
+	 * @param  [type]  $dst_w     [最大宽]
+	 * @param  [type]  $dst_h     [最大高]
+	 * @param  boolean $equality  [是否等比  ，默认不等比]
+	 * @param  [type]  $file_name [文件名]
+	 * @param  string  $path      [保存路径]
+	 * @return [type]             [description]
+	 */
+	public function thumb($dst_w,$dst_h,$equality =false,$file_name =null,$path='image/save')
 	{
+		$width =$this->width();
+		$height = $this->height();
+
+		//等比例 ;
+		if($equality)
+		{
+			$ratio_orig = $width/$height;
+			if($dst_w/$dst_h > $ratio_orig)
+			{
+				$dst_w = $dst_h * $ratio_orig;
+			} else{
+				$dst_h = $dst_w/$ratio_orig;
+			}
+		}
 		$dst_img=imagecreatetruecolor($dst_w, $dst_h);
-		imagecopyresampled($dst_img, $this->img, dst_x, dst_y, src_x, src_y, $dst_w, $dst_h, $this->width(), $this->height())
+		imagecopyresampled($dst_img, $this->img, 0, 0, 0, 0, $dst_w, $dst_h, $width, $height);
+
+		
+		$path_file = $this->createImageName($file_name,$path);
+		$this->info['out_fun']($dst_img,dirname(__FILE__).'/'.$path_file);
+		$this->destroy($dst_img);
+		return $path_file;
 	}
 
-	//水印
+	//图片水印
 	public function water()
 	{
 		
 	}
 
+	//销毁图片资源
 	public function destroy($image)
 	{
 		if(!empty($image)) imagedestroy($image);
 	}
+
+	/**
+	 * 生成图片的文件名
+	 * @param  [type] $name [description]
+	 * @param  string $path [description]
+	 * @return [type]       [description]
+	 */
+	private function createImageName($name = null, $path = 'image/save')
+	{
+		if(file_exists($path)){
+
+			$name = is_null($name) ? substr(str_shuffle($this->str), 0, 13) : $name;
+			return ltrim($path,'/') .'/' . $name . $this->type(true);
+		}else{
+			throw new \Exception("Error Processing Request", 1);
+		}
+	}
+	/**
+	 * 
+	 * @param  [type] $locate [位置]
+	 * @param  [type] $other  [其他事物的宽高  [width,height]]
+	 * @return [type]         [description]
+	 */
+	private function imageLocate($locate,$other=array())
+	{
+		if(empty($other)){
+			throw new \Exception("水印事物没有指定宽高");
+		}
+		$width = $this->width();
+		$height = $this->height();
+
+		try{
+			switch ($locate) {
+				case 'LT':
+					$x = 0;
+					$y = 0;
+					break;
+				case 'LM':
+					$x = 0;
+					$y = 0;
+					break;
+				case 'LB':
+					$x = 0;
+					$y = 0;
+					break;
+				case 'T':
+					$x = 0;
+					$y = 0;
+					break;
+				case 'M':
+					$x = 0;
+					$y = 0;
+					break;
+				case 'B':
+					$x = 0;
+					$y = 0;
+					break;	
+				case 'RT':
+					$x = 0;
+					$y = 0;
+					break;
+				case 'RM':
+					$x = 0;
+					$y = 0;
+					break;
+				case 'RB':
+					$x = 0;
+					$y = 0;
+					break;
+				default:
+					
+					break;
+			}
+
+			return array($x,$y);
+		}catch(Exception $e){
+			throw new \Exception($e);
+		}
+	}
+
 	public function __destruct()
 	{
-		if(!empty($this->img)){
-			$this->destroy($this->img);
-		}
+		$this->destroy($this->img);
+
 	}
 }
 
@@ -116,4 +228,4 @@ $GD    = new Gd();
 $image = 'image/3.jpeg';
 
 $GD->open(dirname(__FILE__) . '/' . $image);
-echo $GD->type();
+$GD->thumb(300,200,true);
