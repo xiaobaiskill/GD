@@ -12,7 +12,9 @@ imagecopymerge($image,$src_image,0,0,0,0,200,200,80);
 
 header('content-type:image/jpeg');
 imagejpeg($image);
+
 imagedestroy($src_image);
+
 imagedestroy($image);
 /*
 $image = imagecreatetruecolor(50,50);
