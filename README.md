@@ -1,6 +1,20 @@
 # GD
 ct-GD  图片处理类
 
+Gd.class.php  
+
+首先使用open()
+之后可以使用text(),water(),thumb()
+这三个方法的返回的都是图像
+可以将返回的图像保存outImage()  或者直接输出outPut()
+
+
+
+
+
+
+
+
 test.php-----------------前期准备使用的文件
 
 Gd.class.php-------------后期封装好的类
