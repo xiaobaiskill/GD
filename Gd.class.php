@@ -44,7 +44,7 @@ class Gd
 			}
 			$this->img_path = $image_file;
 			$this->info     = $image_info;
-			$this->img      = $this->info['image_fun']($image_file);
+			$this->getImage();
 			return true;
 		} else {
 			throw new \Exception("不存在的图像资源");
@@ -58,7 +58,8 @@ class Gd
 	 */
 	private function getImage()
 	{
-		return $this->info['image_fun']($this->img_path);
+		$this->img = is_resource($this->img) ? $this->img : $this->info['image_fun']($this->img_path);
+		return $this->img;
 	}
 	//图像资源的宽
 	public function width()
@@ -118,16 +119,16 @@ class Gd
 	 * 添加文字水印
 	 * @param  [type] $text 		[文字]
 	 * @param  [type] $font_file 	[将字体放入tffs目录下，直接使用引用的字体文件名]
-	 * @param  [type] $size 		[文字大小]
+	 * @param  [type] $size 		[文字大小,使用前将文字先放入tffs中]
 	 * @param  [type] $color 		[颜色，三原色]
 	 * @param  [type] $alpha 		[文字透明度，0完全不透明 ，127完全透明]
 	 * @param  [type] $locate 		[文字所在位置  LT左上角 LM左中 LB左下 T中上 M中间 B中下 RT右上 RM右中 RB右下]
 	 * @param  [type] $offset 		[距离 单数的话，左右上下的间距。数组的话[lr_padding,tb_padding]【左右间距，上下间距】]
 	 * @param  [type] $angle 		[角度]
 	 * */
-	public function text($text, $font, $size, $color = [0, 0, 0], $alpha = 0, $locate = 'LT', $offset = 0, $angle = 0)
+	public function text($text, $font = '1.ttf', $size = 25, $color = [0, 0, 0], $alpha = 0, $locate = 'LT', $offset = 0, $angle = 0)
 	{
-		$image     = $this->img;
+		$image     = $this->getImage();
 		$color     = imagecolorallocatealpha($image, $color[0], $color[1], $color[2], $alpha);
 		$font_file = dirname(__FILE__) . '/tffs/' . $font;
 		if (!is_file($font_file)) {
@@ -141,7 +142,6 @@ class Gd
 		}
 		list($x, $y) = $this->imageLocate($locate, $text_arr, $lr_padding, $tb_padding);
 		@imagettftext($image, $size, $angle, $x, $y + $text_arr[1], $color, $font_file, $text);
-		$this->img = $this->getImage();
 		return $image;
 	}
 
@@ -158,7 +158,7 @@ class Gd
 	{
 		$width  = $this->width();
 		$height = $this->height();
-
+		$image  = $this->getImage();
 		//等比例 ;
 		if ($equality) {
 			$ratio_orig = $width / $height;
@@ -169,7 +169,7 @@ class Gd
 			}
 		}
 		$dst_img = imagecreatetruecolor($dst_w, $dst_h);
-		@imagecopyresampled($dst_img, $this->img, 0, 0, 0, 0, $dst_w, $dst_h, $width, $height);
+		@imagecopyresampled($dst_img, $image, 0, 0, 0, 0, $dst_w, $dst_h, $width, $height);
 		return $dst_img;
 	}
 
@@ -185,7 +185,7 @@ class Gd
 	{
 		$width  = $this->width();
 		$height = $this->height();
-		$dst_im = $this->img;
+		$dst_im = $this->getImage();
 		$file   = realpath($image_file);
 
 		if ($image_info = $this->getImageInfo($file)) {
@@ -206,22 +206,6 @@ class Gd
 		} else {
 			throw new \Exception($image_file . "图片资源路径不正确");
 			return false;
-		}
-	}
-
-	/**
-	 * 生成图片的文件名
-	 * @param  [type] $name [description]
-	 * @param  string $path [description]
-	 * @return [type]       [description]
-	 */
-	private function createImageName($name = null, $path = 'image/save')
-	{
-		if (file_exists($path)) {
-			$name = is_null($name) ? substr(str_shuffle($this->str), 0, 13) : $name;
-			return ltrim($path, '/') . '/' . $name . $this->type(true);
-		} else {
-			throw new \Exception("Error Processing Request", 1);
 		}
 	}
 
@@ -290,6 +274,7 @@ class Gd
 		}
 	}
 
+
 	//保存图片，返回图片路径
 	public function outImage($image, $file_name = null, $path = 'image/save')
 	{
@@ -297,6 +282,22 @@ class Gd
 		$this->info['out_fun']($image, dirname(__FILE__) . '/' . $path_file);
 		$this->destroy($image);
 		return $path_file;
+	}
+
+	/**
+	 * 生成图片的文件名
+	 * @param  [type] $name [description]
+	 * @param  string $path [description]
+	 * @return [type]       [description]
+	 */
+	private function createImageName($name = null, $path = 'image/save')
+	{
+		$path = iconv("UTF-8", "GBK", $path);
+		if (!file_exists($path)) {
+			mkdir ($path,0777,true);
+		}
+		$name = is_null($name) ? substr(str_shuffle($this->str), 0, 13) : $name;
+		return ltrim($path, '/') . '/' . $name . $this->type(true);
 	}
 
 	//输出图片
